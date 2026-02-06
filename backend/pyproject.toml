@@ -22,3 +22,22 @@ extend-exclude = '''
 profile = "black"
 line_length = 88
 skip = [".venv", "migrations", "__pycache__"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+exclude = ["migrations", ".venv", "__pycache__"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["*/tests/*", "*/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "def __repr__"]

@@ -35,3 +35,20 @@ repos:
       - id: isort
         files: ^backend/
         args: [--settings-path=backend/pyproject.toml]
+
+  # Python: flake8 (lint)
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        files: ^backend/
+        args: [--config=backend/.flake8]
+
+  # Python: mypy (type check)
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: bash -c 'cd backend && mypy .'
+        language: system
+        files: ^backend/.*\.py$
