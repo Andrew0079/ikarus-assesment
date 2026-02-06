@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Provider as ReduxProvider } from "react-redux";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { store, clearCredentials, setGlobalLoading, addToast } from "../shared/redux";
 import { configureApiClient, ApiClientError } from "../shared/api";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,14 +52,15 @@ const queryClient = new QueryClient({
   },
 });
 
-export function AppProviders({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    configureApiClient({
-      getToken: () => store.getState().auth.token,
-      onUnauthorized: () => store.dispatch(clearCredentials()),
-    });
-  }, []);
+// Configure API client once at load so the Bearer token is attached to the very first
+// request. If this ran in useEffect, the dashboard could fire a request before the
+// effect ran, so no token would be sent → 401 → clearCredentials → redirect to login.
+configureApiClient({
+  getToken: () => store.getState().auth.token,
+  onUnauthorized: () => store.dispatch(clearCredentials()),
+});
 
+export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

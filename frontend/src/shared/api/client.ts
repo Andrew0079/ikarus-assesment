@@ -54,6 +54,12 @@ export const apiClient: AxiosInstance = axios.create({
 // Request: attach JWT when a token is available and add request ID for tracing
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = authConfig?.getToken() ?? null;
+  console.log(
+    "[API Client] Request to",
+    config.url,
+    "- Token:",
+    token ? token.substring(0, 20) + "..." : "NONE"
+  );
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -76,8 +82,14 @@ apiClient.interceptors.response.use(
     const data = error.response?.data;
     const { code, message } = parseErrorPayload(data);
 
+    // Only clear credentials on 401 if we actually sent a token
+    // (don't clear on failed login attempts)
     if (status === 401) {
-      authConfig?.onUnauthorized?.();
+      const sentToken = error.config?.headers?.Authorization;
+      if (sentToken && authConfig?.onUnauthorized) {
+        console.log("[API Client] 401 with token - clearing credentials");
+        authConfig.onUnauthorized();
+      }
     }
 
     throw new ApiClientError(message, code, status, error.response);
