@@ -21,13 +21,9 @@ def create_app():
     cnx = connexion.App(__name__, specification_dir=spec_dir)
     # Paths in spec are full (/api/...) so no base_path
     # Security handled by Flask-JWT-Extended decorators, not Connexion
-    cnx.add_api("openapi.yaml", arguments={"title": "Weather App API"}, strict_validation=True)
-
-    # Debug: print registered routes
-    print("\n=== Connexion Routes ===")
-    for rule in cnx.app.url_map.iter_rules():
-        print(f"{list(rule.methods)} {rule.rule} -> {rule.endpoint}")
-    print("========================\n")
+    cnx.add_api(
+        "openapi.yaml", arguments={"title": "Weather App API"}, strict_validation=True
+    )
 
     flask_app = cnx.app
     from config import get_config
@@ -36,9 +32,12 @@ def create_app():
     CORS(flask_app, origins=flask_app.config["CORS_ORIGINS"], supports_credentials=True)
     JWTManager(flask_app)
 
-    if flask_app.config.get("RATELIMIT_ENABLED") and flask_app.config.get("RATELIMIT_DEFAULT"):
+    if flask_app.config.get("RATELIMIT_ENABLED") and flask_app.config.get(
+        "RATELIMIT_DEFAULT"
+    ):
         from flask_limiter import Limiter
         from flask_limiter.util import get_remote_address
+
         limiter = Limiter(
             key_func=get_remote_address,
             app=flask_app,
@@ -47,7 +46,10 @@ def create_app():
         flask_app.extensions["limiter"] = limiter
         # Stricter rate limit for auth endpoints (login/register) to reduce enumeration
         auth_limit = flask_app.config.get("RATELIMIT_AUTH") or "10 per minute"
-        for endpoint_name in ("app.controllers.auth.auth_login_post", "app.controllers.auth.auth_register_post"):
+        for endpoint_name in (
+            "app.controllers.auth.auth_login_post",
+            "app.controllers.auth.auth_register_post",
+        ):
             if endpoint_name in flask_app.view_functions:
                 flask_app.view_functions[endpoint_name] = limiter.limit(auth_limit)(
                     flask_app.view_functions[endpoint_name]
@@ -87,22 +89,34 @@ def register_error_handlers(flask_app):
 
     @flask_app.errorhandler(400)
     def bad_request(e):
-        body = {"code": "bad_request", "message": getattr(e, "description", str(e)) or "Bad request"}
+        body = {
+            "code": "bad_request",
+            "message": getattr(e, "description", str(e)) or "Bad request",
+        }
         return body, 400
 
     @flask_app.errorhandler(404)
     def not_found(e):
-        body = {"code": "not_found", "message": getattr(e, "description", str(e)) or "Not found"}
+        body = {
+            "code": "not_found",
+            "message": getattr(e, "description", str(e)) or "Not found",
+        }
         return body, 404
 
     @flask_app.errorhandler(401)
     def unauthorized(e):
-        body = {"code": "unauthorized", "message": getattr(e, "description", str(e)) or "Unauthorized"}
+        body = {
+            "code": "unauthorized",
+            "message": getattr(e, "description", str(e)) or "Unauthorized",
+        }
         return body, 401
 
     @flask_app.errorhandler(500)
     def internal_error(e):
-        body = {"code": "internal_error", "message": getattr(e, "description", str(e)) or "Internal server error"}
+        body = {
+            "code": "internal_error",
+            "message": getattr(e, "description", str(e)) or "Internal server error",
+        }
         return body, 500
 
     @flask_app.errorhandler(Exception)

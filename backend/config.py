@@ -1,6 +1,8 @@
 """Application config."""
+
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +12,9 @@ INSTANCE_DIR = BASE_DIR / "instance"
 INSTANCE_DIR.mkdir(exist_ok=True)
 
 PORT = int(os.environ.get("PORT", 5000))
-CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",")
+CORS_ORIGINS = os.environ.get(
+    "CORS_ORIGINS", "http://localhost:3000,http://localhost:5173"
+).split(",")
 
 # Logging
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
@@ -18,7 +22,19 @@ LOG_JSON = os.environ.get("LOG_JSON", "false").lower() in ("1", "true", "yes")
 
 # JWT
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "change-me-in-production")
-JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", 900))  # 15 min
+JWT_ACCESS_TOKEN_EXPIRES = int(
+    os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", 900)
+)  # 15 min
+
+# Security: Fail fast in production if JWT secret is not set
+if (
+    os.environ.get("FLASK_ENV") == "production"
+    and JWT_SECRET_KEY == "change-me-in-production"
+):
+    raise ValueError(
+        "CRITICAL SECURITY ERROR: JWT_SECRET_KEY must be set in production! "
+        "Set environment variable JWT_SECRET_KEY to a strong random value."
+    )
 
 # Weather (OpenWeatherMap). Optional: if unset, weather endpoints return empty/use cache only.
 OPENWEATHERMAP_API_KEY = (
@@ -28,7 +44,11 @@ WEATHER_CACHE_TTL_MINUTES = int(os.environ.get("WEATHER_CACHE_TTL_MINUTES", 20))
 
 # Rate limiting (per IP). Default 60/min; set to empty to disable.
 RATELIMIT_DEFAULT = os.environ.get("RATELIMIT_DEFAULT", "60 per minute")
-RATELIMIT_ENABLED = os.environ.get("RATELIMIT_ENABLED", "true").lower() in ("1", "true", "yes")
+RATELIMIT_ENABLED = os.environ.get("RATELIMIT_ENABLED", "true").lower() in (
+    "1",
+    "true",
+    "yes",
+)
 # Stricter limit for auth (login/register) to reduce brute-force/enumeration.
 RATELIMIT_AUTH = os.environ.get("RATELIMIT_AUTH", "10 per minute")
 
@@ -62,11 +82,13 @@ class Config:
 
 class DevelopmentConfig(Config):
     """Development: relaxed defaults, no HTTPS enforcement."""
+
     pass
 
 
 class ProductionConfig(Config):
     """Production: require strong JWT secret, document HTTPS at reverse proxy."""
+
     pass
 
 

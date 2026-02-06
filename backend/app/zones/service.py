@@ -6,6 +6,11 @@ from app.extensions import db
 from app.weather.service import get_current_weather
 from app.zones.models import WeatherZone
 
+# Pagination limits
+MIN_LIMIT = 1
+MAX_LIMIT = 100
+DEFAULT_LIMIT = 50
+
 
 def _attach_weather(zone: WeatherZone) -> dict:
     """Return zone as dict with weather if lat/lon present."""
@@ -16,18 +21,21 @@ def _attach_weather(zone: WeatherZone) -> dict:
 
 
 def list_for_user(
-    user_id: int, limit: int = 50, offset: int = 0
+    user_id: int, limit: int = DEFAULT_LIMIT, offset: int = 0
 ) -> tuple[list[dict], int]:
     """
     List zones for user with weather. Returns (items, total).
     """
+    limit = max(MIN_LIMIT, min(limit, MAX_LIMIT))
+    offset = max(0, offset)
+
     q = (
         db.session.query(WeatherZone)
         .filter(WeatherZone.user_id == user_id)
         .order_by(WeatherZone.updated_at.desc())
     )
     total = q.count()
-    zones = q.offset(offset).limit(max(1, min(100, limit))).all()
+    zones = q.offset(offset).limit(limit).all()
     return ([_attach_weather(z) for z in zones], total)
 
 
