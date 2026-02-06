@@ -20,7 +20,7 @@ def create_app():
     cnx = connexion.App(__name__, specification_dir=spec_dir)
     # Paths in spec are full (/api/...) so no base_path
     # Security handled by Flask-JWT-Extended decorators, not Connexion
-    cnx.add_api("openapi.yaml", arguments={"title": "Weather App API"})
+    cnx.add_api("openapi.yaml", arguments={"title": "Weather App API"}, strict_validation=True)
 
     # Debug: print registered routes
     print("\n=== Connexion Routes ===")
@@ -56,4 +56,44 @@ def create_app():
     from app.weather import models as _weather_models  # noqa: F401
     from app.zones import models as _zones_models  # noqa: F401
 
+    register_error_handlers(flask_app)
+
     return cnx
+
+
+def register_error_handlers(flask_app):
+    """Map exceptions to HTTP responses with structured Error schema (code + message)."""
+
+    @flask_app.errorhandler(400)
+    def bad_request(e):
+        body = {"code": "bad_request", "message": getattr(e, "description", str(e)) or "Bad request"}
+        return body, 400
+
+    @flask_app.errorhandler(404)
+    def not_found(e):
+        body = {"code": "not_found", "message": getattr(e, "description", str(e)) or "Not found"}
+        return body, 404
+
+    @flask_app.errorhandler(401)
+    def unauthorized(e):
+        body = {"code": "unauthorized", "message": getattr(e, "description", str(e)) or "Unauthorized"}
+        return body, 401
+
+    @flask_app.errorhandler(500)
+    def internal_error(e):
+        body = {"code": "internal_error", "message": getattr(e, "description", str(e)) or "Internal server error"}
+        return body, 500
+
+    @flask_app.errorhandler(Exception)
+    def default_error(e):
+        # Connexion validation and other framework errors may be caught here
+        code = "internal_error"
+        status = 500
+        msg = str(e) if str(e) else "Internal server error"
+        if hasattr(e, "status_code") and e.status_code == 400:
+            code = "validation_error"
+            status = 400
+        elif hasattr(e, "status_code") and e.status_code == 401:
+            code = "unauthorized"
+            status = 401
+        return {"code": code, "message": msg}, status

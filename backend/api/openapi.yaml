@@ -160,6 +160,154 @@ paths:
         "503":
           description: Weather unavailable
 
+  /api/auth/logout:
+    post:
+      summary: Logout (client discards token)
+      operationId: app.controllers.auth.auth_logout_post
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK; client should discard token
+
+  /api/zones:
+    get:
+      summary: List current user's zones (with latest weather)
+      operationId: app.controllers.zones.zones_list_get
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0, minimum: 0 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Zone" } }
+                  total: { type: integer }
+        "401":
+          description: Unauthorized
+    post:
+      summary: Create a new zone
+      operationId: app.controllers.zones.zones_create_post
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, city_name, country_code]
+              properties:
+                name: { type: string, maxLength: 120 }
+                city_name: { type: string, maxLength: 120 }
+                country_code: { type: string, maxLength: 10 }
+                latitude: { type: number }
+                longitude: { type: number }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Zone" }
+        "400":
+          description: Bad request (e.g. duplicate zone)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Unauthorized
+
+  /api/zones/{zone_id}:
+    get:
+      summary: Get zone by id (with weather)
+      operationId: app.controllers.zones.zones_get
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Zone" }
+        "401":
+          description: Unauthorized
+        "404":
+          description: Zone not found
+    put:
+      summary: Update zone
+      operationId: app.controllers.zones.zones_put
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Zone" }
+        "401":
+          description: Unauthorized
+        "404":
+          description: Zone not found
+    delete:
+      summary: Delete zone
+      operationId: app.controllers.zones.zones_delete
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: No content
+        "401":
+          description: Unauthorized
+        "404":
+          description: Zone not found
+
+  /api/zones/{zone_id}/refresh:
+    post:
+      summary: Force refresh weather for zone
+      operationId: app.controllers.zones.zones_refresh_post
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Zone" }
+        "401":
+          description: Unauthorized
+        "404":
+          description: Zone not found
+
 components:
   securitySchemes:
     bearerAuth:
@@ -177,4 +325,26 @@ components:
     Error:
       type: object
       properties:
+        code: { type: string, description: "Error code for client handling" }
         message: { type: string }
+    Zone:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        name: { type: string }
+        city_name: { type: string }
+        country_code: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        weather:
+          type: object
+          description: Latest weather snapshot (when requested)
+          properties:
+            temperature_c: { type: number }
+            humidity: { type: integer }
+            conditions: { type: string }
+            wind_speed_kmh: { type: number }
+            cached_at: { type: string, format: date-time }
