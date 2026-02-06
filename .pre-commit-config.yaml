@@ -1,0 +1,37 @@
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+# See https://pre-commit.com
+
+default_language_version:
+  python: python3.11
+
+repos:
+  # General file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: detect-private-key
+      - id: debug-statements
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # Python: Black (format) — uses backend/pyproject.toml via path discovery
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        files: ^backend/
+
+  # Python: isort (import sort)
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        files: ^backend/
+        args: [--settings-path=backend/pyproject.toml]
