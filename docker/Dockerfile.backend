@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 5000
-CMD ["sh", "-c", "alembic upgrade head && exec python run.py"]
+CMD ["sh", "-c", "python scripts/ensure_mssql_db.py && alembic upgrade head && exec python run.py"]

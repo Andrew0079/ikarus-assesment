@@ -1,6 +1,14 @@
 # From repo root: docker compose -f docker/docker-compose.yml up --build
-# SQLite DB is in backend/instance/ (volume below) so you can open it in DBeaver on the host.
+# Backend uses MSSQL; weatherapp DB is created on first start.
 services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "[REDACTED]"
+    ports:
+      - "1433:1433"
+
   backend:
     build:
       context: ../backend
@@ -9,5 +17,6 @@ services:
       - "5001:5000"
     environment:
       - PORT=5000
-    volumes:
-      - ../backend/instance:/app/instance
+      - DATABASE_URL=mssql+pymssql://sa:[REDACTED]@mssql:1433/weatherapp
+    depends_on:
+      - mssql

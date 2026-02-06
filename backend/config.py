@@ -20,9 +20,12 @@ LOG_JSON = os.environ.get("LOG_JSON", "false").lower() in ("1", "true", "yes")
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "change-me-in-production")
 JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", 900))  # 15 min
 
-# SQLite (single file, no server)
-_default_db = f"sqlite:///{INSTANCE_DIR / 'weatherapp.db'}"
-DATABASE_URL = os.environ.get("DATABASE_URL", _default_db)
+# MSSQL (required). Example: mssql+pymssql://user:password@host:1433/weatherapp
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError(
+        "DATABASE_URL is required (e.g. mssql+pymssql://sa:YourPassword@localhost:1433/weatherapp)"
+    )
 SQLALCHEMY_DATABASE_URI = DATABASE_URL
 SQLALCHEMY_ENGINE_OPTIONS = (
     {"connect_args": {"check_same_thread": False}} if "sqlite" in DATABASE_URL else {}
