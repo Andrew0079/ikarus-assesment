@@ -7,3 +7,4 @@ export { ProtectedRoute } from "./ProtectedRoute";
 export { AuthLayout } from "./AuthLayout";
 export { AuthFormField } from "./AuthFormField";
 export { AuthFormActions } from "./AuthFormActions";
+export { Toaster } from "./Toaster";
