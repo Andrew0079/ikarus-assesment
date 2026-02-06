@@ -1,0 +1,26 @@
+openapi: 3.0.3
+info:
+  title: Weather App API
+  version: 1.0.0
+  description: API for weather zones and auth
+
+servers:
+  - url: /api
+    description: API base
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: app.controllers.health.health_get
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok

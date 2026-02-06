@@ -40,3 +40,19 @@ Run manually on all files:
 ```bash
 pre-commit run --all-files
 ```
+
+Hooks include **flake8** (lint) and **mypy** (type check) on `backend/`.
+
+## Tests
+
+From `backend/`:
+
+```bash
+cd backend && pytest
+```
+
+With coverage:
+
+```bash
+cd backend && pytest --cov=app
+```
