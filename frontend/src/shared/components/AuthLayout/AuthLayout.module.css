@@ -6,7 +6,6 @@
   overflow: hidden;
 }
 
-/* Image layer: full-bleed behind everything so the fade can reveal it */
 .right {
   position: absolute;
   inset: 0;
@@ -18,7 +17,6 @@
   background-repeat: no-repeat;
 }
 
-/* Left panel: gradient overlay (white → transparent) so it fades into the image */
 .left {
   position: relative;
   z-index: 1;
@@ -30,7 +28,6 @@
   justify-content: flex-start;
   padding: 2rem 2.5rem 2rem 2rem;
   overflow-y: auto;
-  /* Smooth white → transparent fade to avoid any dark band in the blend */
   background: linear-gradient(
     to right,
     #ffffff 0%,
@@ -50,7 +47,6 @@
   max-width: 380px;
 }
 
-/* Mobile: login-cover image is full-page background, form overlay fills screen */
 @media (max-width: 768px) {
   .split {
     background-color: #1e293b;
@@ -66,7 +62,6 @@
     background: transparent;
   }
 
-  /* Form area uses the image as background with a light overlay so it’s visible and readable */
   .formWrap {
     width: 100%;
     max-width: none;

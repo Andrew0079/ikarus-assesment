@@ -1,8 +1,4 @@
-import { Block } from "baseui/block";
-import { Button } from "baseui/button";
-import { FormControl } from "baseui/form-control";
-import { Input } from "baseui/input";
-import { Link } from "react-router-dom";
+import { AuthFormActions, AuthFormField } from "../../../shared/components";
 
 export interface LoginFormProps {
   loginId: string;
@@ -25,43 +21,33 @@ export function LoginForm({
 }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit}>
-      <Block marginBottom="scale600">
-        <FormControl label="Username or email">
-          <Input
-            name="login"
-            value={loginId}
-            onChange={onLoginIdChange}
-            placeholder="Username or email"
-            type="text"
-            autoComplete="username"
-            disabled={loading}
-          />
-        </FormControl>
-      </Block>
-      <Block marginBottom="scale600">
-        <FormControl label="Password">
-          <Input
-            name="password"
-            value={password}
-            onChange={onPasswordChange}
-            placeholder="Password"
-            type="password"
-            autoComplete="current-password"
-            disabled={loading}
-          />
-        </FormControl>
-      </Block>
-      {error ? (
-        <Block marginBottom="scale600" color="red600">
-          {error}
-        </Block>
-      ) : null}
-      <Block display="flex" flexDirection="column" alignItems="flex-start" style={{ gap: "1rem" }}>
-        <Button type="submit" isLoading={loading} disabled={loading}>
-          Log in
-        </Button>
-        <Link to="/register">Create an account</Link>
-      </Block>
+      <AuthFormField
+        label="Username or email"
+        name="login"
+        type="text"
+        value={loginId}
+        onChange={onLoginIdChange}
+        placeholder="Username or email"
+        autoComplete="username"
+        disabled={loading}
+      />
+      <AuthFormField
+        label="Password"
+        name="password"
+        type="password"
+        value={password}
+        onChange={onPasswordChange}
+        placeholder="Password"
+        autoComplete="current-password"
+        disabled={loading}
+      />
+      <AuthFormActions
+        error={error}
+        loading={loading}
+        submitLabel="Log in"
+        linkTo="/register"
+        linkLabel="Create an account"
+      />
     </form>
   );
 }
