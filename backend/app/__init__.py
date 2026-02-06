@@ -20,16 +20,26 @@ def create_app():
     # Connexion 2.x uses connexion.App (not FlaskApp)
     cnx = connexion.App(__name__, specification_dir=spec_dir)
     # Paths in spec are full (/api/...) so no base_path
-    # Security handled by Flask-JWT-Extended decorators, not Connexion
+    # Security: Connexion validates via app.security.bearer_auth (dummy passthrough)
+    # Actual JWT validation done by Flask-JWT-Extended @jwt_required() decorators
     cnx.add_api(
-        "openapi.yaml", arguments={"title": "Weather App API"}, strict_validation=True
+        "openapi.yaml",
+        arguments={"title": "Weather App API"},
+        strict_validation=True,
     )
 
     flask_app = cnx.app
     from config import get_config
 
     flask_app.config.from_object(get_config())
-    CORS(flask_app, origins=flask_app.config["CORS_ORIGINS"], supports_credentials=True)
+    CORS(
+        flask_app,
+        resources={r"/api/*": {"origins": flask_app.config["CORS_ORIGINS"]}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
+        expose_headers=["Content-Type"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    )
     JWTManager(flask_app)
 
     if flask_app.config.get("RATELIMIT_ENABLED") and flask_app.config.get(

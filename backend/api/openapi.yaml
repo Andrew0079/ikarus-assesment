@@ -164,7 +164,6 @@ paths:
     post:
       summary: Logout (client discards token)
       operationId: app.controllers.auth.auth_logout_post
-      security: [{ bearerAuth: [] }]
       responses:
         "200":
           description: OK; client should discard token
@@ -173,7 +172,6 @@ paths:
     get:
       summary: List current user's zones (with latest weather)
       operationId: app.controllers.zones.zones_list_get
-      security: [{ bearerAuth: [] }]
       parameters:
         - name: limit
           in: query
@@ -189,14 +187,17 @@ paths:
               schema:
                 type: object
                 properties:
-                  items: { type: array, items: { $ref: "#/components/schemas/Zone" } }
+                  items:
+                    {
+                      type: array,
+                      items: { $ref: "#/components/schemas/Zone" },
+                    }
                   total: { type: integer }
         "401":
           description: Unauthorized
     post:
       summary: Create a new zone
       operationId: app.controllers.zones.zones_create_post
-      security: [{ bearerAuth: [] }]
       requestBody:
         required: true
         content:
@@ -228,7 +229,6 @@ paths:
     get:
       summary: Get zone by id (with weather)
       operationId: app.controllers.zones.zones_get
-      security: [{ bearerAuth: [] }]
       parameters:
         - name: zone_id
           in: path
@@ -247,7 +247,6 @@ paths:
     put:
       summary: Update zone
       operationId: app.controllers.zones.zones_put
-      security: [{ bearerAuth: [] }]
       parameters:
         - name: zone_id
           in: path
@@ -273,7 +272,6 @@ paths:
     delete:
       summary: Delete zone
       operationId: app.controllers.zones.zones_delete
-      security: [{ bearerAuth: [] }]
       parameters:
         - name: zone_id
           in: path
@@ -291,7 +289,6 @@ paths:
     post:
       summary: Force refresh weather for zone
       operationId: app.controllers.zones.zones_refresh_post
-      security: [{ bearerAuth: [] }]
       parameters:
         - name: zone_id
           in: path
@@ -314,6 +311,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      x-tokenInfoFunc: app.security.bearer_auth
   schemas:
     User:
       type: object
