@@ -1,0 +1,1 @@
+# Zones domain: WeatherZone, CRUD
