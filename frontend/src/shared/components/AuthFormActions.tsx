@@ -25,7 +25,20 @@ export function AuthFormActions({
         </Block>
       ) : null}
       <Block display="flex" flexDirection="column" alignItems="flex-start" style={{ gap: "1rem" }}>
-        <Button type="submit" isLoading={loading} disabled={loading}>
+        <Button
+          type="submit"
+          isLoading={loading}
+          disabled={loading}
+          overrides={{
+            BaseButton: {
+              style: {
+                backgroundColor: "#0ea5e9",
+                ":hover": { backgroundColor: "#0284c7" },
+                ":disabled": { backgroundColor: "#94a3b8" },
+              },
+            },
+          }}
+        >
           {submitLabel}
         </Button>
         <Link to={linkTo}>{linkLabel}</Link>

@@ -5,9 +5,11 @@ Full-stack weather application with user authentication, weather zones managemen
 **Tech Stack**:
 
 - **Backend**: Flask + Connexion (OpenAPI 3.0) + SQLAlchemy + MSSQL
-- **Frontend**: React + Vite + TypeScript + Base Web
+- **Frontend**: React + Vite + TypeScript + Base Web (Styletron), React Query, Redux
 - **DevOps**: Docker Compose, Alembic migrations
 - **Security**: JWT authentication, bcrypt password hashing, rate limiting
+
+**Frontend features**: Login / Register (shared auth layout), protected dashboard, weather zones table (sortable, paginated), city search with overlay dropdown, add/edit/delete/refresh zones, toasts and loading states, persisted auth (token + user in localStorage, restored on refresh).
 
 ---
 
@@ -126,12 +128,7 @@ See [API_EXAMPLES.md](backend/docs/API_EXAMPLES.md) for complete examples.
 
 ## Testing
 
-```bash
-cd backend
-pytest                    # Run all tests
-pytest --cov=app          # With coverage
-pytest -v                 # Verbose output
-```
+Automated tests are not part of this deliverable. The backend has a `tests/` structure and can be extended with pytest; the frontend currently has no test suite. See **Further improvements** below for testing-related suggestions.
 
 ---
 
@@ -281,6 +278,32 @@ backend/
 - Set up nginx reverse proxy with SSL (Let's Encrypt)
 
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for detailed deployment guide.
+
+---
+
+## Further Improvements
+
+### Backend
+
+- **Testing**: Add/expand pytest unit and integration tests (auth, zones, weather), aim for good coverage; consider contract tests for OpenAPI.
+- **Zones API**: Support server-side sorting and filtering (e.g. `?sort=name&order=asc`) so the frontend can avoid client-side sort on paginated data.
+- **Pagination**: Standardise list responses (e.g. consistent `limit`/`offset` or cursor-based) and document in OpenAPI.
+- **Validation**: Stricter request validation (e.g. Pydantic/OpenAPI schema), clearer error payloads (field-level messages).
+- **Caching**: Consider response caching or ETag for zones list and weather endpoints where appropriate.
+- **Logging**: Structured logging (e.g. JSON) and request correlation (X-Request-ID) end-to-end; optional APM.
+- **Security**: Refresh tokens, optional 2FA, and security headers (CSP, etc.) for production.
+- **Health**: Richer `/api/health` (DB connectivity, dependency checks) for orchestration and monitoring.
+
+### Frontend
+
+- **Testing**: Add Vitest (and optionally React Testing Library) for unit tests; E2E with Playwright or Cypress for critical flows (login, add zone, refresh).
+- **Error handling**: Global error boundary, retry UI for failed requests, and clearer offline/network error messages.
+- **Accessibility**: Audit with axe or Lighthouse; ensure keyboard nav, focus management in modals, and ARIA where needed.
+- **Performance**: Code-split routes and heavy components; lazy-load dashboard/zones; consider virtualisation for very long zone lists.
+- **UX**: Skeleton loaders instead of spinners where possible; optimistic updates for zone create/delete; optional “table vs cards” view toggle.
+- **State**: Optionally move more server state into React Query only and reduce Redux to auth + UI (toasts); or keep as-is for simplicity.
+- **i18n**: If the app will be localised, introduce a small i18n layer (e.g. react-i18next) and extract copy.
+- **PWA / Mobile**: Optional service worker and manifest for installability; responsive tweaks for small screens.
 
 ---
 
