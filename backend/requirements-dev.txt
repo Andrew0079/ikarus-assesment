@@ -1,0 +1,4 @@
+# Dev / tooling (not used in Docker image)
+-r requirements.txt
+black==24.2.0
+isort==5.13.2
