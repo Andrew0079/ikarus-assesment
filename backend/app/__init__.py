@@ -48,10 +48,14 @@ def create_app():
         from flask_limiter import Limiter
         from flask_limiter.util import get_remote_address
 
+        # Use Redis for rate limiting storage if configured, otherwise fall back to in-memory
+        storage_uri = flask_app.config.get("RATELIMIT_STORAGE_URL") or None
+
         limiter = Limiter(
             key_func=get_remote_address,
             app=flask_app,
             default_limits=[flask_app.config["RATELIMIT_DEFAULT"]],
+            storage_uri=storage_uri,
         )
         flask_app.extensions["limiter"] = limiter
         # Stricter rate limit for auth endpoints (login/register) to reduce enumeration

@@ -11,3 +11,5 @@ pymssql==2.2.11
 requests==2.31.0
 flask-limiter==3.5.0
 flask-compress==1.14
+gunicorn==21.2.0
+redis==5.0.1

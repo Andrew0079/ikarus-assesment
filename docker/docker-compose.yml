@@ -9,6 +9,14 @@ services:
     ports:
       - "1433:1433"
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
   backend:
     build:
       context: ../backend
@@ -20,8 +28,11 @@ services:
     environment:
       - PORT=5000
       - DATABASE_URL=mssql+pymssql://sa:[REDACTED]@mssql:1433/weatherapp
+      - JWT_SECRET_KEY=[REDACTED]
+      - RATELIMIT_STORAGE_URL=redis://redis:6379
     depends_on:
       - mssql
+      - redis
 
   frontend:
     build:
@@ -31,3 +42,6 @@ services:
       - "8080:80"
     depends_on:
       - backend
+
+volumes:
+  redis-data:

@@ -26,15 +26,20 @@ JWT_ACCESS_TOKEN_EXPIRES = int(
     os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", 900)
 )  # 15 min
 
-# Security: Fail fast in production if JWT secret is not set
-if (
-    os.environ.get("FLASK_ENV") == "production"
-    and JWT_SECRET_KEY == "change-me-in-production"
-):
-    raise ValueError(
-        "CRITICAL SECURITY ERROR: JWT_SECRET_KEY must be set in production! "
-        "Set environment variable JWT_SECRET_KEY to a strong random value."
-    )
+# Security: Fail fast in production if JWT secret is not set or too short
+if os.environ.get("FLASK_ENV") == "production":
+    if JWT_SECRET_KEY == "change-me-in-production":
+        raise ValueError(
+            "CRITICAL SECURITY ERROR: JWT_SECRET_KEY must be set in production! "
+            "Set environment variable JWT_SECRET_KEY to a strong random value (32+ bytes). "
+            'Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+        )
+    if len(JWT_SECRET_KEY.encode()) < 32:
+        raise ValueError(
+            f"CRITICAL SECURITY ERROR: JWT_SECRET_KEY is too short ({len(JWT_SECRET_KEY.encode())} bytes). "
+            "Must be at least 32 bytes for SHA256. "
+            'Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+        )
 
 # Weather (OpenWeatherMap). Optional: if unset, weather endpoints return empty/use cache only.
 OPENWEATHERMAP_API_KEY = (
@@ -51,6 +56,8 @@ RATELIMIT_ENABLED = os.environ.get("RATELIMIT_ENABLED", "true").lower() in (
 )
 # Stricter limit for auth (login/register) to reduce brute-force/enumeration.
 RATELIMIT_AUTH = os.environ.get("RATELIMIT_AUTH", "10 per minute")
+# Redis storage for rate limiting (optional, falls back to in-memory if not set)
+RATELIMIT_STORAGE_URL = os.environ.get("RATELIMIT_STORAGE_URL", "")
 
 # MSSQL (required). Example: mssql+pymssql://user:password@host:1433/weatherapp
 DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -78,6 +85,7 @@ class Config:
     RATELIMIT_DEFAULT = RATELIMIT_DEFAULT
     RATELIMIT_ENABLED = RATELIMIT_ENABLED
     RATELIMIT_AUTH = RATELIMIT_AUTH
+    RATELIMIT_STORAGE_URL = RATELIMIT_STORAGE_URL
 
 
 class DevelopmentConfig(Config):
