@@ -1,0 +1,10 @@
+# From repo root: docker compose -f docker/docker-compose.yml up --build
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../docker/Dockerfile.backend
+    ports:
+      - "5001:5000"
+    environment:
+      - PORT=5000
