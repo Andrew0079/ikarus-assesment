@@ -10,6 +10,8 @@ cd backend && pip install -r requirements.txt && python run.py
 
 API: `http://localhost:5000/api/health` · Swagger UI: `http://localhost:5000/api/ui`
 
+**Logging**: Centralised in `app/logging_config.py`. Every request is logged (method, path, status, duration). Env: `LOG_LEVEL` (default `INFO`), `LOG_JSON=true` for one-JSON-line-per-log (e.g. in Docker). Response header `X-Request-ID` for correlation.
+
 ## Docker
 
 From repo root:

@@ -1,4 +1,4 @@
-"""Initial tables: users, weather_zones, weather_cache (domain-driven).
+"""Initial tables: users, weather_zones, weather_cache.
 
 Revision ID: 001
 Revises:

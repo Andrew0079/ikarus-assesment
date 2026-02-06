@@ -1,4 +1,4 @@
-"""Zones domain: WeatherZone model."""
+"""Zones: WeatherZone model."""
 
 from datetime import datetime
 

@@ -1,4 +1,4 @@
-"""Alembic env: use app config and domain models."""
+"""Alembic env: use app config and app models."""
 
 from logging.config import fileConfig
 
@@ -9,10 +9,10 @@ from sqlalchemy import pool
 from config import SQLALCHEMY_DATABASE_URI
 from app.extensions import db
 
-# Import all domain models so db.metadata has every table
-from domains.auth.models import User  # noqa: F401
-from domains.zones.models import WeatherZone  # noqa: F401
-from domains.weather.models import WeatherCache  # noqa: F401
+# Import all models so db.metadata has every table
+from app.auth.models import User  # noqa: F401
+from app.zones.models import WeatherZone  # noqa: F401
+from app.weather.models import WeatherCache  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

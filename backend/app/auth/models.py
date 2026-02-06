@@ -1,4 +1,4 @@
-"""Auth domain: User model."""
+"""Auth: User model."""
 from datetime import datetime
 
 import bcrypt

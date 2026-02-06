@@ -1,4 +1,4 @@
-"""Weather domain: WeatherCache model."""
+"""Weather: WeatherCache model."""
 
 from datetime import datetime
 

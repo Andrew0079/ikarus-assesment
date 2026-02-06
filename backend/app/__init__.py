@@ -27,9 +27,9 @@ def create_app():
     from app.extensions import db
     db.init_app(flask_app)
 
-    # Import domain models so they are bound to db.metadata (Alembic + Flask-SQLAlchemy)
-    from domains.auth import models as _auth_models  # noqa: F401
-    from domains.zones import models as _zones_models  # noqa: F401
-    from domains.weather import models as _weather_models  # noqa: F401
+    # Import app modules so models are bound to db.metadata (Alembic + Flask-SQLAlchemy)
+    from app.auth import models as _auth_models  # noqa: F401
+    from app.zones import models as _zones_models  # noqa: F401
+    from app.weather import models as _weather_models  # noqa: F401
 
     return cnx
