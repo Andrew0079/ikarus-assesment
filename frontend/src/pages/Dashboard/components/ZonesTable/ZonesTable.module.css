@@ -1,0 +1,177 @@
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #e1e5e9;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-right: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.table th:last-child,
+.table td:last-child {
+  border-right: none;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4a5568;
+  background: #f1f3f5;
+  white-space: nowrap;
+}
+
+.table th button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.table th button:hover {
+  color: #0d1117;
+}
+
+.sortButton {
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sortIcon {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  color: #0d1117;
+}
+
+.sortIconInactive {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+  color: #94a3b8;
+}
+
+.table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.colNum {
+  width: 48px;
+  text-align: right;
+  color: #64748b;
+}
+
+.colActions {
+  width: 1%;
+  white-space: nowrap;
+  border-left: 1px solid #e1e5e9;
+}
+
+.colActionsInner {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #0d1117;
+}
+
+.actionBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.actionBtn.delete:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.actionBtn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 0 4px;
+}
+
+.paginationInfo {
+  font-size: 13px;
+  color: var(--contentSecondary);
+}
+
+.paginationButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.noData {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--contentSecondary);
+  font-size: 14px;
+}
+
+.loadingWrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.error {
+  padding: 16px;
+  color: var(--contentNegative);
+  font-size: 14px;
+}

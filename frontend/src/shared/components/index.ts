@@ -9,3 +9,4 @@ export { AuthFormField } from "./AuthFormField";
 export { AuthFormActions } from "./AuthFormActions";
 export { Toaster } from "./Toaster";
 export { DashboardLayout } from "./DashboardLayout";
+export { ErrorBoundary } from "./ErrorBoundary";

@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Provider as ReduxProvider } from "react-redux";
-import type { ReactNode } from "react";
-import { store, clearCredentials, setGlobalLoading, addToast } from "../shared/redux";
-import { configureApiClient, ApiClientError } from "../shared/api";
+import { useEffect, type ReactNode } from "react";
+import { store, clearCredentials, setGlobalLoading, addToast, setUser } from "../shared/redux";
+import { configureApiClient, ApiClientError, authApi } from "../shared/api";
+import { useAppSelector, useAppDispatch } from "../shared/redux";
 
 
 const queryClient = new QueryClient({
@@ -60,10 +61,29 @@ configureApiClient({
   onUnauthorized: () => store.dispatch(clearCredentials()),
 });
 
+/** When we have a token but no user (e.g. after refresh), fetch current user so navbar shows name. */
+function AuthRestoreUser({ children }: { children: ReactNode }) {
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((s) => s.auth.token);
+  const user = useAppSelector((s) => s.auth.user);
+
+  useEffect(() => {
+    if (!token || user) return;
+    authApi
+      .me()
+      .then((userData) => dispatch(setUser(userData)))
+      .catch(() => {}); // 401 → onUnauthorized clears credentials
+  }, [token, user, dispatch]);
+
+  return <>{children}</>;
+}
+
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ReduxProvider store={store}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthRestoreUser>{children}</AuthRestoreUser>
+      </QueryClientProvider>
     </ReduxProvider>
   );
 }

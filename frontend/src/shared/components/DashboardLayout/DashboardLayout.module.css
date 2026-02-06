@@ -3,9 +3,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: #0d1117;
+  background: #0ea5e9;
   color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .brand {

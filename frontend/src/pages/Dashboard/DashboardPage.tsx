@@ -3,7 +3,7 @@ import { Block } from "baseui/block";
 import { DashboardLayout } from "../../shared/components";
 import { useRefreshZoneWeatherMutation } from "../../shared/api/queries/use-zones";
 import { AddZone } from "./components/AddZone";
-import { ZonesList } from "./components/ZonesList";
+import { ZonesTable } from "./components/ZonesTable";
 import { EditZoneModal } from "./components/EditZoneModal";
 import { DeleteZoneModal } from "./components/DeleteZoneModal";
 import type { Zone } from "../../shared/api/types";
@@ -38,7 +38,7 @@ export function DashboardPage() {
 
       <AddZone />
 
-      <ZonesList
+      <ZonesTable
         onEdit={setEditZone}
         onDelete={setDeleteZone}
         onRefresh={handleRefresh}

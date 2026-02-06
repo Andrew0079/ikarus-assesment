@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { User } from "../../api";
 
 const AUTH_TOKEN_KEY = "weather_app_token";
+const AUTH_USER_KEY = "weather_app_user";
 
 function getStoredToken(): string | null {
   try {
@@ -20,6 +21,26 @@ function setStoredToken(token: string | null): void {
   }
 }
 
+function getStoredUser(): User | null {
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as User;
+    return data && typeof data.id === "number" && data.username ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+function setStoredUser(user: User | null): void {
+  try {
+    if (user) localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(AUTH_USER_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -27,9 +48,10 @@ export interface AuthState {
 }
 
 const storedToken = getStoredToken();
+const storedUser = getStoredToken() ? getStoredUser() : null;
 
 const initialState: AuthState = {
-  user: null,
+  user: storedUser,
   token: storedToken,
   isAuthenticated: Boolean(storedToken),
 };
@@ -40,24 +62,22 @@ export const authSlice = createSlice({
   reducers: {
     setCredentials: (state, action: { payload: { user: User; token: string } }) => {
       const { user, token } = action.payload;
-      console.log("[Auth Slice] setCredentials called", {
-        user,
-        token: token.substring(0, 20) + "...",
-      });
       state.user = user;
       state.token = token;
       state.isAuthenticated = true;
       setStoredToken(token);
+      setStoredUser(user);
     },
     clearCredentials: (state) => {
-      console.log("[Auth Slice] clearCredentials called - STACK TRACE:", new Error().stack);
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       setStoredToken(null);
+      setStoredUser(null);
     },
     setUser: (state, action: { payload: User }) => {
       state.user = action.payload;
+      setStoredUser(action.payload);
     },
   },
 });

@@ -37,17 +37,19 @@ export function DeleteZoneModal({ zone, onClose }: DeleteZoneModalProps) {
         )}
       </ModalBody>
       <ModalFooter>
-        <Button kind="tertiary" onClick={onClose} type="button">
-          Cancel
-        </Button>
-        <Button
-          kind="dangerPrimary"
-          onClick={handleConfirm}
-          isLoading={deleteMutation.isPending}
-          disabled={deleteMutation.isPending}
-        >
-          Delete
-        </Button>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+          <Button kind="tertiary" onClick={onClose} type="button">
+            Cancel
+          </Button>
+          <Button
+            kind="dangerPrimary"
+            onClick={handleConfirm}
+            isLoading={deleteMutation.isPending}
+            disabled={deleteMutation.isPending}
+          >
+            Delete
+          </Button>
+        </div>
       </ModalFooter>
     </Modal>
   );
