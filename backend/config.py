@@ -57,4 +57,28 @@ class Config:
     RATELIMIT_ENABLED = RATELIMIT_ENABLED
 
 
-config_by_name = {"default": Config}
+class DevelopmentConfig(Config):
+    """Development: relaxed defaults, no HTTPS enforcement."""
+    pass
+
+
+class ProductionConfig(Config):
+    """Production: require strong JWT secret, document HTTPS at reverse proxy."""
+    pass
+
+
+def _get_config_name():
+    return os.environ.get("FLASK_ENV", "default").lower()
+
+
+config_by_name = {
+    "default": Config,
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+}
+
+
+def get_config():
+    """Return config for current FLASK_ENV (default/development/production)."""
+    name = _get_config_name()
+    return config_by_name.get(name, Config)

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import connexion
+from flask_compress import Compress
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
@@ -29,9 +30,9 @@ def create_app():
     print("========================\n")
 
     flask_app = cnx.app
-    from config import config_by_name
+    from config import get_config
 
-    flask_app.config.from_object(config_by_name.get("default"))
+    flask_app.config.from_object(get_config())
     CORS(flask_app, origins=flask_app.config["CORS_ORIGINS"], supports_credentials=True)
     JWTManager(flask_app)
 
@@ -46,6 +47,8 @@ def create_app():
         flask_app.extensions["limiter"] = limiter
 
     request_logging(flask_app)
+    add_security_headers(flask_app)
+    Compress(flask_app)
 
     from app.extensions import db
 
@@ -59,6 +62,16 @@ def create_app():
     register_error_handlers(flask_app)
 
     return cnx
+
+
+def add_security_headers(flask_app):
+    """Add common security headers (X-Content-Type-Options, X-Frame-Options)."""
+
+    @flask_app.after_request
+    def security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        return response
 
 
 def register_error_handlers(flask_app):

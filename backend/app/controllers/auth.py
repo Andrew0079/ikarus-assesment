@@ -1,9 +1,17 @@
 """Auth: Connexion handlers (operationId targets)."""
 
+from flask import request
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 from app.auth.models import User
 from app.auth.service import authenticate_user, register_user
+from app.logging_config import get_logger
+
+_AUDIT = get_logger("app.auth.audit")
+
+
+def _client_ip():
+    return request.headers.get("X-Forwarded-For", request.remote_addr or "").split(",")[0].strip()
 
 
 def auth_register_post(body):
@@ -23,6 +31,7 @@ def auth_register_post(body):
         if err:
             return {"code": "validation_error", "message": err}, 400
         token = create_access_token(identity=str(user.id))
+        _AUDIT.info("register success user_id=%s ip=%s", user.id, _client_ip(), extra={"event": "register_success", "user_id": user.id, "ip": _client_ip()})
         return {"user": user.to_dict(), "access_token": token}, 201
     except Exception as e:
         return {"code": "internal_error", "message": str(e)}, 500
@@ -31,13 +40,16 @@ def auth_register_post(body):
 def auth_login_post(body):
     login = (body or {}).get("login", "").strip()
     password = (body or {}).get("password", "")
+    ip = _client_ip()
 
     if not login or not password:
         return {"code": "validation_error", "message": "login and password are required"}, 400
     user = authenticate_user(login, password)
     if not user:
+        _AUDIT.warning("login failure login=%s ip=%s", login[:32], ip, extra={"event": "login_failure", "ip": ip})
         return {"code": "unauthorized", "message": "Invalid login or password"}, 401
     token = create_access_token(identity=str(user.id))
+    _AUDIT.info("login success user_id=%s ip=%s", user.id, ip, extra={"event": "login_success", "user_id": user.id, "ip": ip})
     return {"user": user.to_dict(), "access_token": token}, 200
 
 
