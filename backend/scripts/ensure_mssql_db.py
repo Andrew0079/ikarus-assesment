@@ -1,4 +1,5 @@
 """Create MSSQL database if it does not exist. Run before alembic when using MSSQL."""
+
 import os
 import sys
 import time
@@ -48,12 +49,17 @@ if conn is None:
     raise RuntimeError("Could not connect to MSSQL")
 conn.autocommit(True)
 cur = conn.cursor()
-# Identifier safe: alphanumeric/underscore/hyphen; bracket-escape for T-SQL
-safe_name = db_name.replace("]", "]]")
-sql = (
-    "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = %s) "
-    "CREATE DATABASE [%s]" % (safe_name,)
-)
-cur.execute(sql, (db_name,))
+# Check if database exists
+cur.execute("SELECT name FROM sys.databases WHERE name = %s", (db_name,))
+exists = cur.fetchone()
+if not exists:
+    # Identifier safe: alphanumeric/underscore/hyphen; bracket-escape for T-SQL
+    safe_name = db_name.replace("]", "]]")
+    # CREATE DATABASE cannot use parameterized queries, must use string formatting
+    sql = f"CREATE DATABASE [{safe_name}]"
+    cur.execute(sql)
+    print(f"Database {db_name!r} created.", file=sys.stderr)
+else:
+    print(f"Database {db_name!r} already exists.", file=sys.stderr)
 conn.close()
 print(f"Database {db_name!r} ready.", file=sys.stderr)
