@@ -35,6 +35,16 @@ def create_app():
     CORS(flask_app, origins=flask_app.config["CORS_ORIGINS"], supports_credentials=True)
     JWTManager(flask_app)
 
+    if flask_app.config.get("RATELIMIT_ENABLED") and flask_app.config.get("RATELIMIT_DEFAULT"):
+        from flask_limiter import Limiter
+        from flask_limiter.util import get_remote_address
+        limiter = Limiter(
+            key_func=get_remote_address,
+            app=flask_app,
+            default_limits=[flask_app.config["RATELIMIT_DEFAULT"]],
+        )
+        flask_app.extensions["limiter"] = limiter
+
     request_logging(flask_app)
 
     from app.extensions import db

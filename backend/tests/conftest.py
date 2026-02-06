@@ -5,6 +5,7 @@ import pytest
 
 # Use in-memory SQLite for tests so no MSSQL is required
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+os.environ.setdefault("RATELIMIT_ENABLED", "false")
 
 from app import create_app
 

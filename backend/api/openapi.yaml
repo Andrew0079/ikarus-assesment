@@ -102,6 +102,64 @@ paths:
         "404":
           description: User not found
 
+  /api/weather/search:
+    get:
+      summary: Search cities (autocomplete)
+      operationId: app.controllers.weather.weather_search_get
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+          description: City name or partial
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    name: { type: string }
+                    region: { type: string }
+                    country: { type: string }
+                    lat: { type: number }
+                    lon: { type: number }
+
+  /api/weather/current:
+    get:
+      summary: Current weather by lat/lon (cached)
+      operationId: app.controllers.weather.weather_current_get
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number }
+        - name: lon
+          in: query
+          required: true
+          schema: { type: number }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temperature_c: { type: number }
+                  humidity: { type: integer }
+                  conditions: { type: string }
+                  wind_speed_kmh: { type: number }
+                  cached_at: { type: string, format: date-time }
+        "400":
+          description: Invalid lat/lon
+        "503":
+          description: Weather unavailable
+
 components:
   securitySchemes:
     bearerAuth:

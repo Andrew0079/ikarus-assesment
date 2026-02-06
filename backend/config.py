@@ -20,6 +20,16 @@ LOG_JSON = os.environ.get("LOG_JSON", "false").lower() in ("1", "true", "yes")
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "change-me-in-production")
 JWT_ACCESS_TOKEN_EXPIRES = int(os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", 900))  # 15 min
 
+# Weather (OpenWeatherMap). Optional: if unset, weather endpoints return empty/use cache only.
+OPENWEATHERMAP_API_KEY = (
+    os.environ.get("OPENWEATHERMAP_API_KEY") or os.environ.get("WEATHER_API_KEY") or ""
+).strip()
+WEATHER_CACHE_TTL_MINUTES = int(os.environ.get("WEATHER_CACHE_TTL_MINUTES", 20))
+
+# Rate limiting (per IP). Default 60/min; set to empty to disable.
+RATELIMIT_DEFAULT = os.environ.get("RATELIMIT_DEFAULT", "60 per minute")
+RATELIMIT_ENABLED = os.environ.get("RATELIMIT_ENABLED", "true").lower() in ("1", "true", "yes")
+
 # MSSQL (required). Example: mssql+pymssql://user:password@host:1433/weatherapp
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
@@ -41,6 +51,10 @@ class Config:
     LOG_JSON = LOG_JSON
     JWT_SECRET_KEY = JWT_SECRET_KEY
     JWT_ACCESS_TOKEN_EXPIRES = JWT_ACCESS_TOKEN_EXPIRES
+    OPENWEATHERMAP_API_KEY = OPENWEATHERMAP_API_KEY
+    WEATHER_CACHE_TTL_MINUTES = WEATHER_CACHE_TTL_MINUTES
+    RATELIMIT_DEFAULT = RATELIMIT_DEFAULT
+    RATELIMIT_ENABLED = RATELIMIT_ENABLED
 
 
 config_by_name = {"default": Config}

@@ -15,6 +15,8 @@ services:
       dockerfile: ../docker/Dockerfile.backend
     ports:
       - "5001:5000"
+    env_file:
+      - ../backend/.env
     environment:
       - PORT=5000
       - DATABASE_URL=mssql+pymssql://sa:[REDACTED]@mssql:1433/weatherapp
