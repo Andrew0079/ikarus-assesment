@@ -12,15 +12,21 @@ export function useLoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLoginIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginId(e.target.value);
-    setError(null);
-  }, []);
+  const handleLoginIdChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setLoginId(e.target.value);
+      setError(null);
+    },
+    []
+  );
 
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    setError(null);
-  }, []);
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setPassword(e.target.value);
+      setError(null);
+    },
+    []
+  );
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

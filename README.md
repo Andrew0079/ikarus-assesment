@@ -50,19 +50,22 @@ python run.py
 
 ### 2. Docker Setup (Recommended)
 
+One command builds and runs the full stack (DB → backend → frontend). The UI is served by nginx and proxies `/api` to the backend so the app works from a single origin.
+
 ```bash
 # From repo root
 docker compose -f docker/docker-compose.yml up --build
 ```
 
-**API**: `http://localhost:5001/api/health`
-**Swagger UI**: `http://localhost:5001/ui/`
+- **App (UI)**: `http://localhost:8080` — use this for the full app (login, zones, etc.)
+- **API (direct)**: `http://localhost:5001/api/health`
+- **Swagger UI**: `http://localhost:5001/ui/`
 
 The Docker setup includes:
 
 - MSSQL Server 2022
-- Automatic database creation
-- Alembic migrations on startup
+- Backend (Flask) with automatic DB creation and Alembic migrations on startup
+- Frontend (React/Vite) built and served by nginx; `/api` is proxied to the backend
 
 ### 3. Frontend Setup
 

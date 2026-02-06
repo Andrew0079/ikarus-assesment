@@ -20,7 +20,7 @@ export function useZoneQuery(token: string | null, zoneId: number | null) {
   });
 }
 
-export function useCreateZoneMutation(token: string | null) {
+export function useCreateZoneMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateZoneBody) => zonesApi.create(body),
@@ -30,7 +30,7 @@ export function useCreateZoneMutation(token: string | null) {
   });
 }
 
-export function useUpdateZoneMutation(token: string | null) {
+export function useUpdateZoneMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ zoneId, body }: { zoneId: number; body: UpdateZoneBody }) =>
@@ -41,7 +41,7 @@ export function useUpdateZoneMutation(token: string | null) {
   });
 }
 
-export function useDeleteZoneMutation(token: string | null) {
+export function useDeleteZoneMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (zoneId: number) => zonesApi.delete(zoneId),
@@ -51,7 +51,7 @@ export function useDeleteZoneMutation(token: string | null) {
   });
 }
 
-export function useRefreshZoneWeatherMutation(token: string | null) {
+export function useRefreshZoneWeatherMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (zoneId: number) => zonesApi.refreshWeather(zoneId),

@@ -11,9 +11,7 @@ export const env = {
 export function getApiBaseUrl(): string {
   if (env.apiUrl) return env.apiUrl;
   if (typeof window !== "undefined") {
-    const { protocol, hostname } = window.location;
-    const port = protocol === "https:" ? "" : ":5000";
-    return `${protocol}//${hostname}${port}`;
+    return window.location.origin;
   }
-  return "http://localhost:5000";
+  return "";
 }
