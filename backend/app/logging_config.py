@@ -73,14 +73,13 @@ def request_logging(app) -> None:
     def after_request(response):
         from flask import g, request
         duration_ms = (time.perf_counter() - getattr(g, "request_start", 0)) * 1000
-        extra = {"request_id": getattr(g, "request_id", "-")}
-        logger.info(
-            "%s %s %s %.1fms",
-            request.method,
-            request.path,
-            response.status_code,
-            duration_ms,
-            extra=extra,
-        )
-        response.headers["X-Request-ID"] = getattr(g, "request_id", "")
+        request_id = getattr(g, "request_id", "-")
+        extra = {"request_id": request_id}
+        log_msg = "%s %s %s %.1fms"
+        log_args = (request.method, request.path, response.status_code, duration_ms)
+        if response.status_code >= 400:
+            logger.warning(log_msg, *log_args, extra=extra)
+        else:
+            logger.info(log_msg, *log_args, extra=extra)
+        response.headers["X-Request-ID"] = request_id
         return response

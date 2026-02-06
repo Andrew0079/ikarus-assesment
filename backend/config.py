@@ -29,6 +29,8 @@ WEATHER_CACHE_TTL_MINUTES = int(os.environ.get("WEATHER_CACHE_TTL_MINUTES", 20))
 # Rate limiting (per IP). Default 60/min; set to empty to disable.
 RATELIMIT_DEFAULT = os.environ.get("RATELIMIT_DEFAULT", "60 per minute")
 RATELIMIT_ENABLED = os.environ.get("RATELIMIT_ENABLED", "true").lower() in ("1", "true", "yes")
+# Stricter limit for auth (login/register) to reduce brute-force/enumeration.
+RATELIMIT_AUTH = os.environ.get("RATELIMIT_AUTH", "10 per minute")
 
 # MSSQL (required). Example: mssql+pymssql://user:password@host:1433/weatherapp
 DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -55,6 +57,7 @@ class Config:
     WEATHER_CACHE_TTL_MINUTES = WEATHER_CACHE_TTL_MINUTES
     RATELIMIT_DEFAULT = RATELIMIT_DEFAULT
     RATELIMIT_ENABLED = RATELIMIT_ENABLED
+    RATELIMIT_AUTH = RATELIMIT_AUTH
 
 
 class DevelopmentConfig(Config):

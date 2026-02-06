@@ -45,6 +45,13 @@ def create_app():
             default_limits=[flask_app.config["RATELIMIT_DEFAULT"]],
         )
         flask_app.extensions["limiter"] = limiter
+        # Stricter rate limit for auth endpoints (login/register) to reduce enumeration
+        auth_limit = flask_app.config.get("RATELIMIT_AUTH") or "10 per minute"
+        for endpoint_name in ("app.controllers.auth.auth_login_post", "app.controllers.auth.auth_register_post"):
+            if endpoint_name in flask_app.view_functions:
+                flask_app.view_functions[endpoint_name] = limiter.limit(auth_limit)(
+                    flask_app.view_functions[endpoint_name]
+                )
 
     request_logging(flask_app)
     add_security_headers(flask_app)
@@ -71,6 +78,7 @@ def add_security_headers(flask_app):
     def security_headers(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-API-Version"] = "1"
         return response
 
 
