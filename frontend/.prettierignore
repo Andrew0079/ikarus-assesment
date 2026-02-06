@@ -1,0 +1,17 @@
+# Build and deps
+dist
+node_modules
+*.min.js
+
+# Generated / lockfiles
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# Vite
+*.local
+
+# Cache
+.tmp
+.cache

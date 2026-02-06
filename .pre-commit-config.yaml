@@ -52,3 +52,17 @@ repos:
         entry: bash -c 'cd backend && mypy .'
         language: system
         files: ^backend/.*\.py$
+
+  # Frontend: Prettier (format check)
+  - repo: local
+    hooks:
+      - id: frontend-format
+        name: frontend prettier check
+        entry: bash -c 'cd frontend && npm run format:check'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|md)$
+      - id: frontend-lint
+        name: frontend eslint
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$

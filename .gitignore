@@ -29,3 +29,10 @@ htmlcov/
 
 # Backend instance (SQLite, etc.)
 backend/instance/
+
+# Frontend / Node
+node_modules/
+frontend/dist/
+frontend/.tmp
+.npm
+.eslintcache
