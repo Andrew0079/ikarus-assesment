@@ -38,8 +38,13 @@ export function useLoginForm() {
         return;
       }
       setLoading(true);
+      setError(null);
       try {
         const result = await loginService(trimmedLogin, password);
+        if (!result?.user || !result?.access_token) {
+          setError("Invalid response from server. Please try again.");
+          return;
+        }
         dispatch(setCredentials({ user: result.user, token: result.access_token }));
         navigate("/dashboard", { replace: true });
       } catch (err) {
