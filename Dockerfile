@@ -23,7 +23,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
     rm -rf /var/lib/apt/lists/*
 
 ENV ACCEPT_EULA=Y
-ENV MSSQL_SA_PASSWORD=[REDACTED]
+# Set at runtime (e.g. Railway Variables): MSSQL_SA_PASSWORD, and DATABASE_URL with same password
 ENV MSSQL_PID=Developer
 
 # create mssql dirs + permissions

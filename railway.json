@@ -2,12 +2,11 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "docker/Dockerfile.backend"
+    "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "sh -c 'python scripts/ensure_mssql_db.py && alembic upgrade head && exec gunicorn --config gunicorn.conf.py \"app:create_app()\"'",
+    "startCommand": "/usr/bin/supervisord -n",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
 }
-
