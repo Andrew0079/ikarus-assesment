@@ -156,7 +156,7 @@ Automated tests are not part of this deliverable. The backend has a `tests/` str
 ### Example `.env` File
 
 ```bash
-DATABASE_URL=mssql+pymssql://sa:[REDACTED]@localhost:1433/weatherapp
+DATABASE_URL=mssql+pymssql://sa:YOUR_SA_PASSWORD@localhost:1433/weatherapp
 JWT_SECRET_KEY=your-super-secret-key-change-this-in-production
 OPENWEATHERMAP_API_KEY=your-openweathermap-api-key
 FLASK_ENV=development

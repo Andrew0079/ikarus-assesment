@@ -1,12 +1,12 @@
 # From repo root: docker compose -f docker/docker-compose.yml up --build
-# Build order: mssql -> backend -> frontend. UI is served by nginx and proxies /api to backend.
-# Build context = repo root (..). Backend uses docker/Dockerfile.backend (same as Railway). Frontend uses docker/compose/Dockerfile.frontend (nginx proxies /api to backend).
+# Set MSSQL_SA_PASSWORD, DATABASE_URL, JWT_SECRET_KEY in .env (see root .env.example).
+# Build context = repo root (..). Backend: docker/Dockerfile.backend. Frontend: docker/compose/Dockerfile.frontend.
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "[REDACTED]"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
     ports:
       - "1433:1433"
 
@@ -28,8 +28,8 @@ services:
       - ../backend/.env
     environment:
       - PORT=5000
-      - DATABASE_URL=mssql+pymssql://sa:[REDACTED]@mssql:1433/weatherapp
-      - JWT_SECRET_KEY=[REDACTED]
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - RATELIMIT_STORAGE_URL=redis://redis:6379
     depends_on:
       - mssql
