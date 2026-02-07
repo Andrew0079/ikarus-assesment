@@ -1,5 +1,6 @@
 # From repo root: docker compose -f docker/docker-compose.yml up --build
 # Build order: mssql -> backend -> frontend. UI is served by nginx and proxies /api to backend.
+# Build context = repo root (..). Backend uses docker/Dockerfile.backend (same as Railway). Frontend uses docker/compose/Dockerfile.frontend (nginx proxies /api to backend).
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -19,8 +20,8 @@ services:
 
   backend:
     build:
-      context: ../backend
-      dockerfile: ../docker/Dockerfile.backend
+      context: ..
+      dockerfile: docker/Dockerfile.backend
     ports:
       - "5001:5000"
     env_file:
@@ -36,8 +37,8 @@ services:
 
   frontend:
     build:
-      context: ../frontend
-      dockerfile: ../docker/Dockerfile.frontend
+      context: ..
+      dockerfile: docker/compose/Dockerfile.frontend
     ports:
       - "8080:80"
     depends_on:

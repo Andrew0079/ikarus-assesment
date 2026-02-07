@@ -69,6 +69,8 @@ The Docker setup includes:
 - Backend (Flask) with automatic DB creation and Alembic migrations on startup
 - Frontend (React/Vite) built and served by nginx; `/api` is proxied to the backend
 
+**Dockerfiles:** Compose uses **repo root** as build context. Backend uses `docker/Dockerfile.backend` (same as Railway). Frontend uses `docker/compose/Dockerfile.frontend` (nginx with `/api` proxy to backend). Railway uses `docker/Dockerfile.backend` and `docker/Dockerfile.frontend` (standalone frontend, no proxy).
+
 ### 3. Frontend Setup
 
 ```bash
@@ -249,35 +251,36 @@ backend/
 
 ---
 
-## Production Deployment
+## Production Deployment (Railway)
 
 ### Checklist
 
 - [ ] Set strong `JWT_SECRET_KEY` (32+ random characters)
 - [ ] Set `FLASK_ENV=production`
-- [ ] Configure production `DATABASE_URL`
-- [ ] Enable HTTPS at reverse proxy (nginx, Cloudflare, etc.)
-- [ ] Set production `CORS_ORIGINS`
-- [ ] Configure `OPENWEATHERMAP_API_KEY`
-- [ ] Set up monitoring (Sentry, Datadog, etc.)
-- [ ] Configure log aggregation
-- [ ] Set up database backups
-- [ ] Review rate limits for expected traffic
+- [ ] Configure production `DATABASE_URL` (hosted MSSQL, e.g. Azure SQL)
+- [ ] Set production `CORS_ORIGINS` (your frontend URL)
+- [ ] Configure `OPENWEATHERMAP_API_KEY` (optional)
+- [ ] Set `VITE_API_URL` on frontend build (backend public URL)
 
-### Deployment Options
+### Deploy on Railway
 
-**Option 1: Railway + Azure SQL**
+**Backend service**
 
-- Backend: Railway (free tier)
-- Database: Azure SQL Database (free tier)
-- Frontend: Vercel (free tier)
+- **Build**: Dockerfile path `docker/Dockerfile.backend`, root = repo root.
+- **Env vars**:
+  - `DATABASE_URL` – **Required.** Hosted MSSQL connection string (e.g. **Azure SQL**: `mssql+pymssql://user:password@your-server.database.windows.net:1433/yourdb`). Railway does not run MSSQL; use Azure SQL (free tier) or another hosted MSSQL.
+  - `JWT_SECRET_KEY` – Strong random value (32+ bytes); in production the app refuses to start if missing or weak.
+  - `CORS_ORIGINS` – Your frontend URL(s), e.g. `https://your-frontend.up.railway.app`.
+  - Optional: `OPENWEATHERMAP_API_KEY`, `RATELIMIT_STORAGE_URL` (Redis URL if you add Redis).
 
-**Option 2: Docker on VPS**
+**Frontend service**
 
-- Use `docker-compose.yml` on any VPS (DigitalOcean, Linode, etc.)
-- Set up nginx reverse proxy with SSL (Let's Encrypt)
+- **Build**: Dockerfile path `docker/Dockerfile.frontend`, root = repo root.
+- **Build variable**: `VITE_API_URL` = your backend public URL (e.g. `https://your-backend.up.railway.app`, no trailing slash). If unset, the app uses same-origin (only works when frontend and backend share one domain).
 
-See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for detailed deployment guide.
+**Database**
+
+- MSSQL is not run on Railway. Use **Azure SQL Database** (or any hosted MSSQL): create a database, then set `DATABASE_URL` in the backend service. The backend runs migrations on startup; if the host does not allow `CREATE DATABASE`, the startup script skips it (database must already exist).
 
 ---
 

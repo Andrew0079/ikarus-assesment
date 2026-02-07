@@ -56,9 +56,16 @@ if not exists:
     # Identifier safe: alphanumeric/underscore/hyphen; bracket-escape for T-SQL
     safe_name = db_name.replace("]", "]]")
     # CREATE DATABASE cannot use parameterized queries, must use string formatting
-    sql = f"CREATE DATABASE [{safe_name}]"
-    cur.execute(sql)
-    print(f"Database {db_name!r} created.", file=sys.stderr)
+    # On hosted MSSQL (e.g. Azure SQL) you may not have permission; then we assume DB exists
+    try:
+        sql = f"CREATE DATABASE [{safe_name}]"
+        cur.execute(sql)
+        print(f"Database {db_name!r} created.", file=sys.stderr)
+    except pymssql.Error as e:
+        print(
+            f"CREATE DATABASE skipped ({e}). Assuming database exists (e.g. hosted MSSQL).",
+            file=sys.stderr,
+        )
 else:
     print(f"Database {db_name!r} already exists.", file=sys.stderr)
 conn.close()
