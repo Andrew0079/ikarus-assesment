@@ -35,9 +35,9 @@ Full-stack weather application with user authentication, weather zones managemen
 cd backend
 pip install -r requirements.txt
 
-# Set environment variables
-export DATABASE_URL="mssql+pymssql://sa:YourPassword@localhost:1433/weatherapp"
-export JWT_SECRET_KEY="your-secret-key-here"
+# Set environment variables (use your own values; do not commit real secrets)
+export DATABASE_URL="mssql+pymssql://sa:YOUR_SA_PASSWORD@localhost:1433/weatherapp"
+export JWT_SECRET_KEY="your-secret-key-at-least-32-chars"
 export OPENWEATHERMAP_API_KEY="your-api-key-here"  # Optional
 
 # Run migrations
@@ -52,10 +52,13 @@ python run.py
 
 ### 2. Docker Setup (Recommended)
 
-One command builds and runs the full stack (DB → backend → frontend). The UI is served by nginx and proxies `/api` to the backend so the app works from a single origin.
+Build and run the full stack (MSSQL, Redis, backend, frontend). The UI is served by nginx and proxies `/api` to the backend.
 
 ```bash
-# From repo root
+# From repo root: copy backend/.env.example to backend/.env and set MSSQL_SA_PASSWORD, DATABASE_URL, JWT_SECRET_KEY
+cp backend/.env.example backend/.env
+# Edit backend/.env with your values (do not commit)
+
 docker compose -f docker/docker-compose.yml up --build
 ```
 
@@ -69,7 +72,7 @@ The Docker setup includes:
 - Backend (Flask) with automatic DB creation and Alembic migrations on startup
 - Frontend (React/Vite) built and served by nginx; `/api` is proxied to the backend
 
-**Dockerfiles:** Compose uses **repo root** as build context. Backend uses `docker/Dockerfile.backend`. Frontend uses `docker/compose/Dockerfile.frontend` (nginx with `/api` proxy to backend). No `.env` required for local: compose uses dev defaults (MSSQL password `DevPass123!`). Override with `.env` in repo root (see `.env.example`); MSSQL requires 8+ character password (upper, lower, digit, symbol).
+**Docker Compose (local):** Run from repo root. **Requires `backend/.env`**: copy `backend/.env.example` to `backend/.env` and set `MSSQL_SA_PASSWORD`, `DATABASE_URL`, `JWT_SECRET_KEY` (MSSQL needs 8+ chars, upper/lower/digit/symbol). Do not commit `backend/.env`. Build context = repo root; backend = `docker/Dockerfile.backend`, frontend = `docker/compose/Dockerfile.frontend`.
 
 ### 3. Frontend Setup
 
@@ -153,7 +156,9 @@ Automated tests are not part of this deliverable. The backend has a `tests/` str
 | `LOG_JSON`                  | `false`                                       | JSON-formatted logs                          |
 | `FLASK_ENV`                 | `default`                                     | Environment (default/development/production) |
 
-### Example `.env` File
+### Example `.env` (do not commit)
+
+For Docker Compose use **`backend/.env`**. Copy from `backend/.env.example` and set your own values. Never commit `.env` or real credentials.
 
 ```bash
 DATABASE_URL=mssql+pymssql://sa:YOUR_SA_PASSWORD@localhost:1433/weatherapp
@@ -253,40 +258,35 @@ backend/
 
 ## Production Deployment (Railway)
 
+Deploy backend and frontend on [Railway](https://railway.app). Set all secrets in Railway **Variables** (never commit them). For the full stack including MSSQL in one container, use the **Hobby** plan (8 GB RAM); for backend + frontend only, use external MSSQL (e.g. Azure SQL) and the free tier is enough.
+
 ### Checklist
 
-- [ ] Set strong `JWT_SECRET_KEY` (32+ random characters)
-- [ ] Set `FLASK_ENV=production`
-- [ ] Configure production `DATABASE_URL` (hosted MSSQL, e.g. Azure SQL)
-- [ ] Set production `CORS_ORIGINS` (your frontend URL)
-- [ ] Configure `OPENWEATHERMAP_API_KEY` (optional)
-- [ ] Set `VITE_API_URL` on frontend build (backend public URL)
+- [ ] Set strong `JWT_SECRET_KEY` (32+ random characters) in Railway Variables
+- [ ] Set `DATABASE_URL` (hosted MSSQL or use all-in-one with Hobby plan)
+- [ ] Set `CORS_ORIGINS` to your frontend URL
+- [ ] Set `VITE_API_URL` on frontend build to your backend URL (if separate frontend service)
+- [ ] Never commit `.env` or real credentials; use Railway Variables only for production
 
-### Deploy on Railway
+### Option A: Railway all-in-one (MSSQL + backend + frontend)
 
-**Backend service**
+Requires **Hobby plan** ($5/mo, 8 GB RAM). One service runs the root `Dockerfile` (MSSQL, Redis, backend, frontend).
 
-- **Build**: Dockerfile path `docker/Dockerfile.backend`, root = repo root.
-- **Env vars**:
-  - `DATABASE_URL` – **Required.** Hosted MSSQL connection string (e.g. **Azure SQL**: `mssql+pymssql://user:password@your-server.database.windows.net:1433/yourdb`). Railway does not run MSSQL; use Azure SQL (free tier) or another hosted MSSQL.
-  - `JWT_SECRET_KEY` – Strong random value (32+ bytes); in production the app refuses to start if missing or weak.
-  - `CORS_ORIGINS` – Your frontend URL(s), e.g. `https://your-frontend.up.railway.app`.
-  - Optional: `OPENWEATHERMAP_API_KEY`, `RATELIMIT_STORAGE_URL` (Redis URL if you add Redis).
+- **Build**: Dockerfile path `Dockerfile`, root = repo root. **Start command**: `/usr/bin/supervisord -n`.
+- **Variables**: `MSSQL_SA_PASSWORD` (8+ chars, policy), `DATABASE_URL` (e.g. `mssql+pymssql://sa:YOUR_SA_PASSWORD@localhost:1433/weatherapp`), `JWT_SECRET_KEY`.
+- **Expose** the service and set **port 8080** for the UI.
 
-**Frontend service**
+### Option B: Railway backend + frontend only (external MSSQL)
 
-- **Build**: Dockerfile path `docker/Dockerfile.frontend`, root = repo root.
-- **Build variable**: `VITE_API_URL` = your backend public URL (e.g. `https://your-backend.up.railway.app`, no trailing slash). If unset, the app uses same-origin (only works when frontend and backend share one domain).
+Use **free tier**. Two services: backend and frontend; database is external (e.g. Azure SQL).
 
-**Database**
+- **Backend**: Dockerfile `docker/Dockerfile.backend`, root = repo root. **Variables**: `DATABASE_URL` (e.g. Azure SQL connection string), `JWT_SECRET_KEY`, `CORS_ORIGINS` (your frontend URL).
+- **Frontend**: Dockerfile `docker/Dockerfile.frontend`, root = repo root. **Build variable** `VITE_API_URL` = your backend public URL.
+- **Database**: Create Azure SQL (or other hosted MSSQL), set `DATABASE_URL` in the backend service.
 
-- MSSQL is not run on Railway. Use **Azure SQL Database** (or any hosted MSSQL): create a database, then set `DATABASE_URL` in the backend service. The backend runs migrations on startup; if the host does not allow `CREATE DATABASE`, the startup script skips it (database must already exist).
+### Local: Docker Compose
 
-### Deploy on Azure (Static Web App + App Service + Azure SQL)
-
-- **Frontend**: Azure Static Web Apps – build from `frontend/` (e.g. Vite), set **Application setting** `VITE_API_URL` = your backend URL (App Service).
-- **Backend**: Azure App Service – deploy from repo (e.g. Dockerfile `docker/Dockerfile.backend` or Python runtime). Set **Application settings**: `DATABASE_URL` (Azure SQL connection string), `JWT_SECRET_KEY`, `CORS_ORIGINS` (your Static Web App URL).
-- **Database**: Azure SQL Database – create server + database, allow Azure services (and optionally your IP) in firewall, use connection string as `DATABASE_URL`. Format: `mssql+pymssql://user:password@yourserver.database.windows.net:1433/yourdb`.
+Copy `backend/.env.example` to `backend/.env` and set `MSSQL_SA_PASSWORD`, `DATABASE_URL`, `JWT_SECRET_KEY`. Then run `docker compose -f docker/docker-compose.yml up --build`. **Do not commit `backend/.env`**.
 
 ---
 
