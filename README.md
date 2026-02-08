@@ -268,13 +268,16 @@ Deploy backend and frontend on [Railway](https://railway.app). Set all secrets i
 - [ ] Set `VITE_API_URL` on frontend build to your backend URL (if separate frontend service)
 - [ ] Never commit `.env` or real credentials; use Railway Variables only for production
 
-### Option A: Railway all-in-one (MSSQL + backend + frontend)
+### Option A: Railway all-in-one (MSSQL + backend + frontend) — Hobby plan
 
-Requires **Hobby plan** ($5/mo, 8 GB RAM). One service runs the root `Dockerfile` (MSSQL, Redis, backend, frontend).
+**This repo is configured for Option A.** Commit, push, and Railway will build the root `Dockerfile` (MSSQL, Redis, backend, frontend) and run it.
 
-- **Build**: Dockerfile path `Dockerfile`, root = repo root. **Start command**: `/usr/bin/supervisord -n`.
-- **Variables**: `MSSQL_SA_PASSWORD` (8+ chars, policy), `DATABASE_URL` (e.g. `mssql+pymssql://sa:YOUR_SA_PASSWORD@localhost:1433/weatherapp`), `JWT_SECRET_KEY`.
-- **Expose** the service and set **port 8080** for the UI.
+1. **Connect** the repo to Railway (Hobby plan). Build uses `railway.json` → `Dockerfile` at repo root; start is `/usr/bin/supervisord -n` (default in image).
+2. **Variables** (in Railway → your service → Variables):  
+   - `MSSQL_SA_PASSWORD` — 8+ chars, mix of upper, lower, digit, symbol (MSSQL policy).  
+   - `DATABASE_URL` — `mssql+pymssql://sa:YOUR_SA_PASSWORD@localhost:1433/weatherapp` (use the same password as above).  
+   - `JWT_SECRET_KEY` — 32+ random characters (e.g. `python -c "import secrets; print(secrets.token_urlsafe(32))"`).
+3. **Expose** the service and set the **public port to 8080** (UI). API is on port 5000 inside the container.
 
 ### Option B: Railway backend + frontend only (external MSSQL)
 
