@@ -51,11 +51,15 @@ RUN npm run build
 RUN npm install -g serve
 
 # ----------------------
-# Supervisor
+# Supervisor + entrypoint (MSSQL must be configured with mssql-conf setup before sqlservr)
 # ----------------------
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+ENV PORT=5000
 
 EXPOSE 8080 5000 1433 6379
 
-CMD ["/usr/bin/supervisord", "-n"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
