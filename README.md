@@ -69,7 +69,7 @@ The Docker setup includes:
 - Backend (Flask) with automatic DB creation and Alembic migrations on startup
 - Frontend (React/Vite) built and served by nginx; `/api` is proxied to the backend
 
-**Dockerfiles:** Compose uses **repo root** as build context. Backend uses `docker/Dockerfile.backend` (same as Railway). Frontend uses `docker/compose/Dockerfile.frontend` (nginx with `/api` proxy to backend). Railway uses `docker/Dockerfile.backend` and `docker/Dockerfile.frontend` (standalone frontend, no proxy).
+**Dockerfiles:** Compose uses **repo root** as build context. Backend uses `docker/Dockerfile.backend`. Frontend uses `docker/compose/Dockerfile.frontend` (nginx with `/api` proxy to backend). No `.env` required for local: compose uses dev defaults (MSSQL password `DevPass123!`). Override with `.env` in repo root (see `.env.example`); MSSQL requires 8+ character password (upper, lower, digit, symbol).
 
 ### 3. Frontend Setup
 
@@ -281,6 +281,12 @@ backend/
 **Database**
 
 - MSSQL is not run on Railway. Use **Azure SQL Database** (or any hosted MSSQL): create a database, then set `DATABASE_URL` in the backend service. The backend runs migrations on startup; if the host does not allow `CREATE DATABASE`, the startup script skips it (database must already exist).
+
+### Deploy on Azure (Static Web App + App Service + Azure SQL)
+
+- **Frontend**: Azure Static Web Apps – build from `frontend/` (e.g. Vite), set **Application setting** `VITE_API_URL` = your backend URL (App Service).
+- **Backend**: Azure App Service – deploy from repo (e.g. Dockerfile `docker/Dockerfile.backend` or Python runtime). Set **Application settings**: `DATABASE_URL` (Azure SQL connection string), `JWT_SECRET_KEY`, `CORS_ORIGINS` (your Static Web App URL).
+- **Database**: Azure SQL Database – create server + database, allow Azure services (and optionally your IP) in firewall, use connection string as `DATABASE_URL`. Format: `mssql+pymssql://user:password@yourserver.database.windows.net:1433/yourdb`.
 
 ---
 
